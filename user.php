@@ -75,46 +75,75 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <head>
     <meta charset="UTF-8">
-    <title>Select Equipment</title>
+    <title>Laboratory Management</title>
+    <!-- Include jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Include Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body>
-    <div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">
+            <img src="http://localhost/02Test/Assets/UoJ_logo.png" width="30" height="30" class="d-inline-block align-top" alt="">
+            Laboratory Management
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav ml-auto">
+                <a class="nav-item nav-link active" href="#">Home <span class="sr-only">(current)</span></a>
+                <a class="nav-item nav-link" href="equipment.php?regId=<?= htmlspecialchars($regId) ?>">Equipments</a>
+                <a class="nav-item nav-link" href="#">About</a>
+                <a class="nav-item nav-link" href="#">Contact</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-4">
         <form id="equipmentForm" method="post">
-            <label for="equip_dropdown">Select Equipment:</label>
-            <select id="equip_dropdown" name="equip_dropdown">
-                <option value="">-- Select Equipment --</option>
-                <?php foreach ($equipments as $equip) : ?>
-                    <option value="<?= $equip['equip_id']; ?>"><?= $equip['name']; ?></option>
-                <?php endforeach; ?>
-            </select>
+            <div class="form-group">
+                <label for="equip_dropdown">Select Equipment:</label>
+                <select id="equip_dropdown" name="equip_dropdown" class="form-control">
+                    <option value="">-- Select Equipment --</option>
+                    <?php foreach ($equipments as $equip) : ?>
+                        <option value="<?= $equip['equip_id']; ?>"><?= $equip['name']; ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
 
-            <br>
-            <label for="qty_dropdown">Available Quantity:</label>
-            <select id="qty_dropdown" name="qty_dropdown">
-                <!-- Quantities will be filled in by JavaScript -->
-            </select>
-            <input type="hidden" id="selected_equipments" name="selected_equipments">
-            <br>
-            <button type="button" id="addBtn">Add</button>
+            <div class="form-group">
+                <label for="qty_dropdown">Available Quantity:</label>
+                <select id="qty_dropdown" name="qty_dropdown" class="form-control">
+                    <!-- Quantities will be filled in by JavaScript -->
+                </select>
+            </div>
+
+            <button type="button" id="addBtn" class="btn btn-primary mb-2">Add</button>
             <div id="selectedItems"></div>
-            <br>
-            <label for="request_date">Request Date:</label>
-            <input type="date" id="request_date" name="request_date" required>
-            <br>
-            <label for="appt">Select Start Time:</label>
-            <input type="time" id="appt" name="start_time" required>
-            <br>
-            <label for="appt">Select End Time:</label>
-            <input type="time" id="appt" name="end_time" required>
-            <br>
-            <input type="submit" value="Submit Request">
+
+            <div class="form-group">
+                <label for="request_date">Request Date:</label>
+                <input type="date" id="request_date" name="request_date" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="appt">Select Start Time:</label>
+                <input type="time" id="appt" name="start_time" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="appt">Select End Time:</label>
+                <input type="time" id="appt" name="end_time" class="form-control" required>
+            </div>
+
+            <input type="submit" value="Submit Request" class="btn btn-success">
+            <input type="hidden" id="selected_equipments" name="selected_equipments">
         </form>
     </div>
-    <div class="half">
-        <!-- Second half of the page where the table will be -->
-        <table>
+
+    <div class="container mt-4">
+        <table class="table table-bordered">
             <thead>
                 <tr>
                     <th>Reservation Date</th>
@@ -127,65 +156,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </tr>
             </thead>
             <tbody>
-                <?php
-                include 'connection.php';
-
-                // SQL query to fetch reservation data
-                $sql = "SELECT request_no, date_time, request_date, start_time, end_time, status FROM request WHERE student_reg = ?";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("s", $regId);
-                $stmt->execute();
-                $result = $stmt->get_result();
-
-                // Check if there are any records
-                if ($result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()) {
-                        echo "<tr>
-                <td>" . htmlspecialchars($row['date_time']) . "</td>
-                <td>";
-
-                        // Fetch equipment details for the current request
-                        $sql2 = "SELECT e.name, re.count FROM requestequipment re JOIN equipment e ON re.euip_id = e.equip_id WHERE re.request_no = ?";
-                        $stmt2 = $conn->prepare($sql2);
-                        $stmt2->bind_param("s", $row['request_no']);
-                        $stmt2->execute();
-                        $result2 = $stmt2->get_result();
-
-                        if ($result2->num_rows > 0) {
-                            while ($row2 = $result2->fetch_assoc()) {
-                                echo htmlspecialchars($row2['name']) . " (Qty: " . htmlspecialchars($row2['count']) . ")<br>";
-                            }
-                        } else {
-                            echo "No equipment details";
-                        }
-
-                        echo "</td>
-                <td>" . htmlspecialchars($row['request_date']) . "</td>
-                <td>" . htmlspecialchars($row['start_time']) . "</td>
-                <td>" . htmlspecialchars($row['end_time']) . "</td>
-                <td>" . htmlspecialchars($row['status']) . "</td>
-                <td><button>Edit</button>
-                <form action='delete_request.php' method='post' onsubmit='return confirm(\"Are you sure you want to delete this request?\");'>
-                <input type='hidden' name='request_no' value='" . $row['request_no'] . "'>
-                <button type='submit' name='deleteBtn'>Delete</button>
-                </form></td>
-                </tr>";
-
-                        // Close the inner statement
-                        $stmt2->close();
-                    }
-                } else {
-                    echo "<tr><td colspan='7'>No reservations found</td></tr>";
-                }
-
-                // Close the statement and connection
-                $stmt->close();
-                ?>
+                <?php include 'display_reservations.php'; ?>
             </tbody>
         </table>
     </div>
 
-    <!--JavaScript -->
     <script>
         $(document).ready(function() {
             $('#equip_dropdown').change(function() {
@@ -210,22 +185,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             });
         });
 
-
-        var selectedEquipments = []; // Array to store equipment and quantities
+        var selectedEquipments = [];
         $('#addBtn').click(function() {
-            var equipId = $('#equip_dropdown').val(); // Get selected equipment ID
-            var equipName = $('#equip_dropdown option:selected').text(); // Get equipment name for display
-            var quantity = $('#qty_dropdown').val(); // Get selected quantity
+            var equipId = $('#equip_dropdown').val();
+            var equipName = $('#equip_dropdown option:selected').text();
+            var quantity = $('#qty_dropdown').val();
             if (equipId && quantity) {
-                // Check if the equipment ID already exists in the array
                 var existing = selectedEquipments.find(item => item.equipId === equipId);
                 if (!existing) {
-                    // Add new item to the array
                     selectedEquipments.push({
                         equipId: equipId,
                         quantity: quantity
                     });
-                    // Append a new line to the display div
                     $('#selectedItems').append('<p>' + equipName + ' - Quantity: ' + quantity + '</p>');
                 } else {
                     alert('This equipment has already been added. You can remove it if you want to change the quantity.');
@@ -235,16 +206,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         });
 
-
         $('#equipmentForm').submit(function(e) {
-            // Prevent the default form submission
             e.preventDefault();
-
-            // Update the hidden input with the JSON string of selectedEquipments
             $('#selected_equipments').val(JSON.stringify(selectedEquipments));
-
-            // Now submit the form
-            this.submit(); // or $(this).unbind('submit').submit() if submit event is bound
+            this.submit();
         });
     </script>
 </body>
