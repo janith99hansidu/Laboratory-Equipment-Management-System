@@ -102,48 +102,32 @@
 
 
     <?php if (!$isLoggedIn) : ?>
-        <div class="card">
-            <h2>Login</h2>
-            <form method="post">
-                <div class="mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" class="form-control" id="username" name="username" value="<?php echo $username; ?>">
-                </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" name="password">
-                </div>
-                <?php if (!empty($errorMsg)) : ?>
-                    <div class="alert alert-danger" role="alert">
-                        <?php echo $errorMsg; ?>
+        <div class="card" style="max-width: 400px; margin: auto; top: 50%; position: relative; transform: translateY(50%);">
+            <div class="m-4">
+                <h2>Login</h2>
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" value="<?php echo $username; ?>">
                     </div>
-                <?php endif; ?>
-                <button type="submit" class="btn btn-primary">Login</button>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password">
+                    </div>
+                    <?php if (!empty($errorMsg)) : ?>
+                        <div class="alert alert-danger" role="alert">
+                            <?php echo $errorMsg; ?>
+                        </div>
+                    <?php endif; ?>
+                    <button type="submit" class="btn btn-primary">Login</button>
 
-                <p class="mt-3">
-                    Don't have an account? <a href="register.php">Register Here</a>
-                </p>
-            </form>
+                    <p class="mt-3">
+                        Don't have an account? <a href="register.php">Register Here</a>
+                    </p>
+                </form>
+            </div>
         </div>
-        <div class="half">
-            <!-- Second half of the page where the table will be -->
-            <table>
-                <thead>
-                    <tr>
-                        <th>Reservation Date</th>
-                        <th>Items</th>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>End Time</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- PHP code will go here to populate the table -->
-                </tbody>
-            </table>
-        </div>
+
 
     <?php else : ?>
         <h2>Welcome, <?php echo $_SESSION['user_name']; ?>!</h2>
