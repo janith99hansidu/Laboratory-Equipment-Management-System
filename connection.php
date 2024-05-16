@@ -1,16 +1,15 @@
-<?php
-// Define database connection parameters
-$servername = "localhost";
-$username = "root";
-$password = "";
-$database = "laboratory";
+<?php 
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $database);
+	$dbhost = 'localhost';
+	$dbuser = 'root';
+	$dbpass = '';
+	$dbname = 'laboratory'; 
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+	$connection = mysqli_connect('localhost', 'root', '', 'laboratory');
+
+	// Checking the connection
+	if (mysqli_connect_errno()) {
+		die('Database connection failed ' . mysqli_connect_error());
+	}
 
 ?>
