@@ -35,12 +35,15 @@ if ($result->num_rows > 0) {
                 <td>" . htmlspecialchars($row['start_time']) . "</td>
                 <td>" . htmlspecialchars($row['end_time']) . "</td>
                 <td>" . htmlspecialchars($row['status']) . "</td>
-                <td><button>Edit</button>
-                <form action='delete_request.php' method='post' onsubmit='return confirm(\"Are you sure you want to delete this request?\");'>
-                <input type='hidden' name='request_no' value='" . $row['request_no'] . "'>
-                <button type='submit' name='deleteBtn'>Delete</button>
-                </form></td>
-                </tr>";
+                <td>
+                    <button>Edit</button>
+                    <form action='delete_request.php' method='post' onsubmit='return confirm(\"Are you sure you want to delete this request?\");'>
+                        <input type='hidden' name='request_no' value='" . $row['request_no'] . "'>
+                        <input type='hidden' name='regId' value='" . $regId . "'>
+                        <button type='submit' name='deleteBtn'>Delete</button>
+                    </form>
+                </td>
+            </tr>";
 
         // Close the inner statement
         $stmt2->close();
