@@ -11,15 +11,15 @@ if (isset($_GET['empId'])) {
     exit;
 }
 
-// Query to fetch pending requests along with aggregated equipment details
+// Query to fetch borrowed reservations along with aggregated equipment details
 $sql = "
-    SELECT r.request_no, r.student_reg, r.date_time, r.status, r.start_time, r.end_time, r.request_date,
-           GROUP_CONCAT(CONCAT(re.euip_id, ': ', re.count) SEPARATOR ', ') AS equipment
+    SELECT r.request_no, r.student_reg, r.date_time, r.status, r.start_time, r.end_time, r.request_date, r.to_id,
+    GROUP_CONCAT(CONCAT(re.euip_id, ': ', re.count) SEPARATOR ', ') AS equipment
     FROM request r
     LEFT JOIN requestequipment re 
     ON r.request_no = re.request_no
-    WHERE r.status = 'pending'
-    GROUP BY r.request_no, r.student_reg, r.date_time, r.status, r.start_time, r.end_time, r.request_date
+    WHERE r.status = 'borrowed'
+    GROUP BY r.request_no, r.student_reg, r.date_time, r.status, r.start_time, r.end_time, r.request_date, r.to_id
 ";
 $result = $conn->query($sql);
 ?>
@@ -28,11 +28,11 @@ $result = $conn->query($sql);
 <html>
 
 <head>
-    <title>Admin - Pending Requests</title>
+    <title>Admin - Borrowed Reservations</title>
 </head>
 
 <body>
-    <h1>Pending Requests</h1>
+    <h1>Borrowed Reservations</h1>
     <a href="admin.php?empId=<?php echo $empId; ?>">View Pending Requests</a>
     <a href="accepted_reservations.php?empId=<?php echo $empId; ?>">View Accepted Reservations</a>
     <a href="borrowed_reservations.php?empId=<?php echo $empId; ?>">View Borrowed Reservations</a>
@@ -46,6 +46,7 @@ $result = $conn->query($sql);
             <th>Start Time</th>
             <th>End Time</th>
             <th>Request Date</th>
+            <th>To ID</th>
             <th>Equipment (ID: Count)</th>
             <th>Actions</th>
         </tr>
@@ -60,19 +61,19 @@ $result = $conn->query($sql);
                 echo "<td>" . $row['start_time'] . "</td>";
                 echo "<td>" . $row['end_time'] . "</td>";
                 echo "<td>" . $row['request_date'] . "</td>";
+                echo "<td>" . $row['to_id'] . "</td>";
                 echo "<td>" . $row['equipment'] . "</td>";
                 echo "<td>
-                        <form method='POST' action='process_request.php'>
+                        <form method='POST' action='process_borrowed_request.php'>
                             <input type='hidden' name='request_no' value='" . $row['request_no'] . "'>
                             <input type='hidden' name='empId' value='" . $empId . "'>
-                            <input type='submit' name='action' value='Accept'>
-                            <input type='submit' name='action' value='Reject'>
+                            <input type='submit' name='action' value='Return'>
                         </form>
                     </td>";
                 echo "</tr>";
             }
         } else {
-            echo "<tr><td colspan='10'>No pending requests found.</td></tr>";
+            echo "<tr><td colspan='10'>No borrowed reservations found.</td></tr>";
         }
         ?>
     </table>
