@@ -6,11 +6,10 @@ $regId = $_GET['regId'] ?? null;
 
 // Display user's registration number
 if ($regId) {
-    echo "Your registration number is: " . htmlspecialchars($regId);
+    echo "Your registration number is: " . htmlspecialchars($regId) . "";
 } else {
     echo "Registration number not found.";
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -18,9 +17,12 @@ if ($regId) {
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Equipment List</title>
     <!-- Include Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
 <body>
@@ -44,8 +46,8 @@ if ($regId) {
 
     <div class="container mt-4">
         <h2>Equipment Table</h2>
-        <table class="table table-bordered">
-            <thead>
+        <table class="table table-bordered table-hover">
+            <thead class="thead-dark">
                 <tr>
                     <th>Name</th>
                     <th>Brand</th>
@@ -77,6 +79,9 @@ if ($regId) {
             </tbody>
         </table>
     </div>
+
+    <!-- Include Bootstrap JS (optional, for Bootstrap's JavaScript plugins) -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 
 </html>

@@ -1,10 +1,7 @@
 <?php
 include 'connection.php';
 
-// Retrieve registration number from query parameter
-$regId = $_GET['regId'] ?? null;
-
-if (isset($_POST['deleteBtn']) && isset($_POST['request_no'])) {
+if (isset($_POST['request_no'])) {
     $requestNo = $_POST['request_no'];
 
     // Start transaction
@@ -26,24 +23,11 @@ if (isset($_POST['deleteBtn']) && isset($_POST['request_no'])) {
         // Commit transaction
         $conn->commit();
 
-        // Redirect to user.php with regId
-        if ($regId) {
-            header("Location: user.php?regId=$regId");
-        } else {
-            header("Location: user.php"); // Adjust the redirection URL as necessary
-        }
-        exit();
+        echo json_encode(["status" => "success"]);
     } catch (Exception $e) {
         // An error occurred, rollback transaction
         $conn->rollback();
-        echo "Error deleting record: " . $e->getMessage();
+        echo json_encode(["status" => "error", "message" => $e->getMessage()]);
     }
-}
-
-// Display user's registration number
-if ($regId) {
-    echo "Your registration number is: $regId";
-} else {
-    echo "Registration number not found.";
 }
 ?>
