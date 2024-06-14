@@ -11,15 +11,15 @@ if (isset($_GET['empId'])) {
     exit;
 }
 
-// Query to fetch pending requests along with aggregated equipment details
+// Query to fetch borrowed reservations along with aggregated equipment details
 $sql = "
-    SELECT r.request_no, r.student_reg, r.date_time, r.status, r.start_time, r.end_time, r.request_date,
+    SELECT r.request_no, r.student_reg, r.date_time, r.status, r.start_time, r.end_time, r.request_date, r.to_id,
     GROUP_CONCAT(CONCAT(re.euip_id, ': ', re.count) SEPARATOR ', ') AS equipment
     FROM request r
     LEFT JOIN requestequipment re 
     ON r.request_no = re.request_no
-    WHERE r.status = 'pending'
-    GROUP BY r.request_no, r.student_reg, r.date_time, r.status, r.start_time, r.end_time, r.request_date
+    WHERE r.status = 'borrowed'
+    GROUP BY r.request_no, r.student_reg, r.date_time, r.status, r.start_time, r.end_time, r.request_date, r.to_id
 ";
 $result = $conn->query($sql);
 ?>
@@ -29,7 +29,7 @@ $result = $conn->query($sql);
 
 <head>
     <meta charset="UTF-8">
-    <title>Admin - Pending Requests</title>
+    <title>Admin - Borrowed Reservations</title>
     <!-- Include Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
@@ -46,16 +46,16 @@ $result = $conn->query($sql);
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav ml-auto">
-                <a class="nav-item nav-link active" href="admin.php?empId=<?php echo $empId; ?>">Admin - Pending Requests</a>
+                <a class="nav-item nav-link" href="admin.php?empId=<?php echo $empId; ?>">Admin - Pending Requests</a>
                 <a class="nav-item nav-link" href="accepted_reservations.php?empId=<?php echo $empId; ?>">View Accepted Reservations</a>
-                <a class="nav-item nav-link" href="borrowed_reservations.php?empId=<?php echo $empId; ?>">View Borrowed Reservations</a>
+                <a class="nav-item nav-link active" href="borrowed_reservations.php?empId=<?php echo $empId; ?>">View Borrowed Reservations</a>
                 <a class="nav-item nav-link" href="returned_reservations.php?empId=<?php echo $empId; ?>">View Returned Reservations</a>
             </div>
         </div>
     </nav>
 
     <div class="container mt-4">
-        <h2>Pending Requests</h2>
+        <h2>Borrowed Reservations</h2>
         <table class="table table-bordered">
             <thead class="thead-dark">
                 <tr>
@@ -66,6 +66,7 @@ $result = $conn->query($sql);
                     <th>Start Time</th>
                     <th>End Time</th>
                     <th>Request Date</th>
+                    <th>To ID</th>
                     <th>Equipment (ID: Count)</th>
                     <th>Actions</th>
                 </tr>
@@ -82,21 +83,19 @@ $result = $conn->query($sql);
                         echo "<td>" . $row['start_time'] . "</td>";
                         echo "<td>" . $row['end_time'] . "</td>";
                         echo "<td>" . $row['request_date'] . "</td>";
+                        echo "<td>" . $row['to_id'] . "</td>";
                         echo "<td>" . $row['equipment'] . "</td>";
                         echo "<td>
-                            <form method='POST' action='process_request.php'>
+                            <form method='POST' action='process_borrowed_request.php'>
                                 <input type='hidden' name='request_no' value='" . $row['request_no'] . "'>
                                 <input type='hidden' name='empId' value='" . $empId . "'>
-                                <div class='btn-group' role='group'>
-                                    <input type='submit' name='action' value='Accept' class='btn btn-primary'>
-                                    <input type='submit' name='action' value='Reject' class='btn btn-danger'>
-                                </div>
+                                <input type='submit' name='action' value='Return' class='btn btn-primary'>
                             </form>
                         </td>";
                         echo "</tr>";
                     }
                 } else {
-                    echo "<tr><td colspan='9'>No pending requests found.</td></tr>";
+                    echo "<tr><td colspan='10'>No borrowed reservations found.</td></tr>";
                 }
                 ?>
             </tbody>

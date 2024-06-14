@@ -1,7 +1,7 @@
 <?php
 include 'connection.php';
 
-if (isset($_POST['deleteBtn']) && isset($_POST['request_no'])) {
+if (isset($_POST['request_no'])) {
     $requestNo = $_POST['request_no'];
 
     // Start transaction
@@ -23,12 +23,11 @@ if (isset($_POST['deleteBtn']) && isset($_POST['request_no'])) {
         // Commit transaction
         $conn->commit();
 
-        // Redirect or send success message
-        header("Location: user.php"); // Adjust the redirection URL as necessary
-        exit();
+        echo json_encode(["status" => "success"]);
     } catch (Exception $e) {
         // An error occurred, rollback transaction
         $conn->rollback();
-        echo "Error deleting record: " . $e->getMessage();
+        echo json_encode(["status" => "error", "message" => $e->getMessage()]);
     }
 }
+?>

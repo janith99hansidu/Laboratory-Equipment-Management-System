@@ -14,7 +14,7 @@ $regId = $_GET['regId'] ?? null;
 
 // Display user's registration number
 if ($regId) {
-    echo "Your registration number is: $regId";
+    echo "Your registration number is: " . htmlspecialchars($regId);
 } else {
     echo "Registration number not found.";
 }
@@ -40,34 +40,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $endTime = $_POST['end_time'] ?? null;
     $dateTime = date('Y-m-d H:i:s'); // Current date and time
 
-    // Prepare SQL Insert Query
-    $insertQuery = $conn->prepare("INSERT INTO request (student_reg, date_time, status, start_time, end_time, request_date) VALUES (?, ?, 'pending', ?, ?, ?)");
-    $insertQuery->bind_param("sssss", $regId, $dateTime, $startTime, $endTime, $requestDate);
-    $insertQuery->execute();
-
-    if ($insertQuery->error) {
-        echo "Error inserting data: " . $insertQuery->error;
+    if (!$requestDate || !$startTime || !$endTime) {
+        echo "Please fill all required fields.";
     } else {
-        echo "Request submitted successfully!";
-    }
+        // Prepare SQL Insert Query
+        $insertQuery = $conn->prepare("INSERT INTO request (student_reg, date_time, status, start_time, end_time, request_date) VALUES (?, ?, 'pending', ?, ?, ?)");
+        $insertQuery->bind_param("sssss", $regId, $dateTime, $startTime, $endTime, $requestDate);
+        $insertQuery->execute();
 
-    $requestId = $conn->insert_id;
-    //make next query for adding 
-    $selectedEquipments = json_decode($_POST['selected_equipments'], true);
-
-    // Insert each selected equipment into the requestequipment table
-    foreach ($selectedEquipments as $item) {
-        $insertEquipQuery = $conn->prepare("INSERT INTO requestequipment (request_no, euip_id, count) VALUES (?, ?, ?)");
-        $insertEquipQuery->bind_param("iii", $requestId, $item['equipId'], $item['quantity']);
-        $insertEquipQuery->execute();
-        if ($insertEquipQuery->error) {
-            echo "Error inserting equipment data: " . $insertEquipQuery->error;
+        if ($insertQuery->error) {
+            echo "Error inserting data: " . $insertQuery->error;
+        } else {
+            echo "Request submitted successfully!";
         }
-        $insertEquipQuery->close();
-    }
-    $insertQuery->close();
-}
 
+        $requestId = $conn->insert_id;
+        // Prepare to insert selected equipment
+        $selectedEquipments = json_decode($_POST['selected_equipments'], true);
+
+        foreach ($selectedEquipments as $item) {
+            $insertEquipQuery = $conn->prepare("INSERT INTO requestequipment (request_no, euip_id, count) VALUES (?, ?, ?)");
+            $insertEquipQuery->bind_param("iii", $requestId, $item['equipId'], $item['quantity']);
+            $insertEquipQuery->execute();
+            if ($insertEquipQuery->error) {
+                echo "Error inserting equipment data: " . $insertEquipQuery->error;
+            }
+            $insertEquipQuery->close();
+        }
+        $insertQuery->close();
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -85,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <a class="navbar-brand" href="#">
-            <img src="http://localhost/02Test/Assets/UoJ_logo.png" width="30" height="30" class="d-inline-block align-top" alt="">
+            <img src="Assets/UoJ_logo.png" width="30" height="30" class="d-inline-block align-top" alt="">
             Laboratory Management
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
@@ -95,8 +97,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="navbar-nav ml-auto">
                 <a class="nav-item nav-link active" href="#">Home <span class="sr-only">(current)</span></a>
                 <a class="nav-item nav-link" href="equipment.php?regId=<?= htmlspecialchars($regId) ?>">Equipments</a>
-                <a class="nav-item nav-link" href="#">About</a>
-                <a class="nav-item nav-link" href="#">Contact</a>
+                <a class="nav-item nav-link" href="about.php?regId=<?= htmlspecialchars($regId) ?>">About</a>
+                <a class="nav-item nav-link" href="contact.php?regId=<?= htmlspecialchars($regId) ?>">Contact</a>
             </div>
         </div>
     </nav>
@@ -144,20 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="container mt-4">
         <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Reservation Date</th>
-                    <th>Items</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>End Time</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
                 <?php include 'display_reservations.php'; ?>
-            </tbody>
         </table>
     </div>
 
