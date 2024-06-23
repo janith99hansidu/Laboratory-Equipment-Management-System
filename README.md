@@ -1,6 +1,6 @@
 # Laboratory Equipment Management System
 
-This project is a web-based Laboratory Equipment Management System developed using PHP and MySQL. The system facilitates the management of laboratory equipment reservations and ensures smooth handling of equipment requests by both students and administrators.
+This project is a web-based Laboratory Equipment Management System developed using PHP and MySQL for 5th semester Database Management Systems subject at University of Jaffna. The system facilitates the management of laboratory equipment reservations and ensures smooth handling of equipment requests by both students and administrators.
 
 ## Features
 
